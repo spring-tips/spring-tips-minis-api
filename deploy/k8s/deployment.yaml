@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spring-tips-bites
+  name: spring-tips-bites
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-tips-bites
+  template:
+    metadata:
+      labels:
+        app: spring-tips-bites
+    spec:
+      containers:
+        - image: gcr.io/bootiful/spring-tips-bites
+          imagePullPolicy: Always
+          name: spring-tips-bites
+          envFrom:
+            - secretRef:
+                name: spring-tips-bites-secrets
+          env:
+            - name: LANG
+              value: "en_US.UTF-8"
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/readiness
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: "1Gi"
+            requests:
+              memory: "1Gi"

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+
+
+    <!--
+    renders the background square
+    -->
+    <rect x="0" y="0" width="1920" height="1080" stroke-width="0" fill="#65c662"/>
+    <!--
+    renders the rounded rectangle in the middle of the template
+    -->
+    <rect x="50" y="50" rx="50" ry="50"
+          width="1820" height="940"
+          filter="url(#dropshadow)" fill="white"
+          stroke-width="5"/>
+
+    <!--
+    renders the 'spring tips' widget at the top left
+    -->
+    <rect x="-80" y="20" rx="30" ry="30" width="520" height="80" fill="black"/>
+    <text id="spring-tips-text" fill="#fff" font-size="85" font-family="Rift-Bold, Rift" font-weight="700">
+        <tspan x="50" y="100">Spring Tips</tspan>
+    </text>
+
+    <!--
+    renders the tip title
+    -->
+    <text id="spring-tips-title" fill="#006600" font-size="55" font-family="Rift-Bold, Rift" font-weight="700">
+        <tspan id="titleText" x="450" y="88"></tspan>
+    </text>
+
+
+    <!--
+    renders the '@starbuxman | @springtipslive' widget at the bottom right
+    -->
+    <rect x="920" y="1010" rx="20" ry="20" width="1500" height="40" fill="black"/>
+    <text id="spring-tips-text" fill="#fff" font-size="48" font-family="Rift,Rift-Bold">
+        <tspan font-size="smaller" x="950" y="1050" fill="#d6d6d6">follow
+            <tspan font-size="larger" font-family="Rift-Bold" fill="white">@starbuxman</tspan>
+            and <tspan font-size="larger" font-family="Rift-Bold" fill="white">@springtipslive</tspan> for more
+        </tspan>
+    </text>
+
+    <!--
+    todo render the code itself, complete with colorization of java language tokens
+    -->
+
+    <filter id="dropshadow" height="130%">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="15"/>
+        <feOffset dx="5" dy="5" result="offsetblur"/>
+        <feComponentTransfer>
+            <feFuncA type="linear" slope="0.5"/>
+        </feComponentTransfer>
+        <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+    </filter>
+
+    <text xml:space="preserve" id="codeText" x="100" y="150" font-size="30"
+          font-family="Courier New, Roboto Mono,RobotoMono-Regular ">
+    </text>
+
+    <style>
+    .comment {
+        fill: gray;
+        font-family: "DejaVu Sans", "Rift-Bold" ;
+        font-weight : bold ;
+    }
+    </style>
+</svg>
