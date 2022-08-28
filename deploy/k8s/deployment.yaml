@@ -18,20 +18,36 @@ spec:
         - image: gcr.io/bootiful/spring-tips-bites
           imagePullPolicy: Always
           name: spring-tips-bites
+
           envFrom:
             - secretRef:
                 name: spring-tips-bites-secrets
+
           env:
             - name: LANG
               value: "en_US.UTF-8"
-          readinessProbe:
+
+          startupProbe:
+            failureThreshold: 60
+            periodSeconds: 60
             httpGet:
               port: 8080
               path: /actuator/health/readiness
+
+          readinessProbe:
+            failureThreshold: 60
+            periodSeconds: 60
+            httpGet:
+              port: 8080
+              path: /actuator/health/readiness
+
           livenessProbe:
+            failureThreshold: 60
+            periodSeconds: 60
             httpGet:
               port: 8080
               path: /actuator/health/liveness
+
           ports:
             - containerPort: 8080
           resources:
