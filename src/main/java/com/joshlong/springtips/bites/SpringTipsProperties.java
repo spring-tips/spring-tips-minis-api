@@ -22,7 +22,7 @@ record SpringTipsProperties(Fonts fonts, Twitter twitter, File outputDirectory, 
 
 	record Twitter(String username, Client client) {
 
-		record Client(String name, String secret) {
+		record Client(String id, String secret) {
 		}
 	}
 

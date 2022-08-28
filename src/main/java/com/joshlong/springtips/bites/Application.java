@@ -41,7 +41,7 @@ public class Application {
 
 	@Bean
 	Promoter promoter(Twitter twitter, DatabaseClient dbc, TransactionalOperator tx, SpringTipsProperties properties) {
-		return new Promoter(twitter, dbc, tx, properties.twitter().username(), properties.twitter().client().name(),
+		return new Promoter(twitter, dbc, tx, properties.twitter().username(), properties.twitter().client().id(),
 				properties.twitter().client().secret());
 	}
 
