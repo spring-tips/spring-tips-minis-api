@@ -1,5 +1,6 @@
 package com.joshlong.springtips.bites;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.time.Instant;
 import java.util.Objects;
 
+@Slf4j
 @Controller
 @ResponseBody
 class RepositoryRefreshController {
@@ -33,7 +35,9 @@ class RepositoryRefreshController {
 	ResponseEntity<?> refresh(RequestEntity<String> requestEntity) throws Exception {
 		var theirHash = HmacUtils.generateHmac256(Objects.requireNonNull(requestEntity.getBody()),
 				this.rebuildKey.getBytes());
+		log.debug("theirHash " + theirHash);
 		var myHash = getGithubWebhookRequestSha256HeaderValue(requestEntity);
+		log.debug("myHash " + myHash);
 		if (StringUtils.hasText(myHash) && StringUtils.hasText(theirHash)) {
 			if (myHash.contains(theirHash)) {
 				var event = new RepositoryRefreshEvent(Instant.now());

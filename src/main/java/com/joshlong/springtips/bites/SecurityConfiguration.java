@@ -29,6 +29,7 @@ class SecurityConfiguration {
 	SecurityWebFilterChain authorization(ServerHttpSecurity http) {
 		return http//
 				.authorizeExchange(ae -> ae.matchers(EndpointRequest.toAnyEndpoint()).permitAll())
+				.authorizeExchange(ae -> ae.pathMatchers("/refresh").permitAll())
 				.authorizeExchange(ae -> ae.anyExchange().authenticated()) //
 				.httpBasic(Customizer.withDefaults()) //
 				.csrf(ServerHttpSecurity.CsrfSpec::disable) //
