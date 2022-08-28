@@ -55,3 +55,9 @@ Then I use the following Java code with Apache Commons Compress on the classpath
 ```
 
 Replace `src/main/resources/fonts.tgz.encrypted` with the newly encrypted archive, then `git commit -am polish` and `git push`. 
+
+
+## Rebuild 
+
+The `Repository` keeps track of all the published Spring Tips from the Git repository. We rebuild that index whenever there's a change in the github repository. I've configured a webhook on that git repository to send an `application/json` content-type `POST` request to `/refresh`.
+

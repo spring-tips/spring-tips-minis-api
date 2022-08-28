@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
+import org.springframework.r2dbc.core.DatabaseClient;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @SpringBootApplication
@@ -31,9 +33,9 @@ public class Application {
 
 	@Bean
 	Repository repository(TipManifestReader reader, SpringTipsProperties properties,
-			ApplicationEventPublisher publisher) {
+			ApplicationEventPublisher publisher, DatabaseClient dbc, TransactionalOperator tx) {
 		return new Repository(properties.github().cloneDirectory(), reader, properties.github().gitRepository(),
-				publisher);
+				publisher, dbc, tx);
 	}
 
 	@Bean
