@@ -25,12 +25,18 @@ class Promoter {
 
 	private final String twitterUsername, twitterClientId, twitterClientSecret;
 
+	private String renderAndEncodeTweet(SpringTip springTip) {
+		// todo use the renderer and such
+		return springTip.tweet();
+	}
+
 	@EventListener
 	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) {
 		var st = event.getSource();
 		var client = new Twitter.Client(this.twitterClientId, this.twitterClientSecret);
+		var tweetJson = renderAndEncodeTweet(st);
 		var promotionPipeline = this.twitter//
-				.scheduleTweet(client, new Date(), this.twitterUsername, st.tweetJson()) //
+				.scheduleTweet(client, new Date(), this.twitterUsername, tweetJson) //
 				.flatMap(result -> {
 					if (result) {
 						return this.dbc//

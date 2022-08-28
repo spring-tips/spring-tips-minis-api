@@ -38,8 +38,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	private final URI uri;
 
-	private final Set<SpringTip> tips = new ConcurrentSkipListSet<>(
-			Comparator.comparing(o -> (o.title() + o.tweetJson())));
+	private final Set<SpringTip> tips = new ConcurrentSkipListSet<>(Comparator.comparing(o -> (o.title() + o.tweet())));
 
 	private final ApplicationEventPublisher publisher;
 
@@ -85,7 +84,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 				""";
 
 		return dbc.sql(sql) //
-				.bind("tweet", tip.tweetJson()) //
+				.bind("tweet", tip.tweet()) //
 				.bind("uid", tip.uid())//
 				.bind("title", tip.title())//
 				.bind("code", tip.code())//
