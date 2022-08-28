@@ -17,7 +17,7 @@ record SpringTipsProperties(Fonts fonts, File outputDirectory, Github github) {
 	record Fonts(Encryption encryption, Resource archive) {
 	}
 
-	record Github(String indexRebuildKey, URI gitRepository, File cloneDirectory, boolean resetOnRebuild) {
+	record Github(URI gitRepository, File cloneDirectory, String rebuildKey) {
 	}
 
 }

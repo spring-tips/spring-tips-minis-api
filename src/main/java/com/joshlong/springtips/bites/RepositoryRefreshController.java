@@ -1,10 +1,10 @@
 package com.joshlong.springtips.bites;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,20 +14,25 @@ import java.util.Objects;
 
 @Controller
 @ResponseBody
-@RequiredArgsConstructor
 class RepositoryRefreshController {
 
-	private final String indexRebuildKey;
+	private final String rebuildKey;
 
 	private final ApplicationEventPublisher publisher;
+
+	RepositoryRefreshController(String rebuildKey, ApplicationEventPublisher publisher) {
+		this.rebuildKey = rebuildKey;
+		this.publisher = publisher;
+		Assert.hasText(this.rebuildKey, "the rebuildKey must not be null");
+	}
 
 	/*
 	 * this is for github
 	 */
-	@PostMapping("/index")
+	@PostMapping("/refresh")
 	ResponseEntity<?> refresh(RequestEntity<String> requestEntity) throws Exception {
 		var theirHash = HmacUtils.generateHmac256(Objects.requireNonNull(requestEntity.getBody()),
-				this.indexRebuildKey.getBytes());
+				this.rebuildKey.getBytes());
 		var myHash = getGithubWebhookRequestSha256HeaderValue(requestEntity);
 		if (StringUtils.hasText(myHash) && StringUtils.hasText(theirHash)) {
 			if (myHash.contains(theirHash)) {

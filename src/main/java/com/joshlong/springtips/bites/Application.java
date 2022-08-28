@@ -32,8 +32,8 @@ public class Application {
 	@Bean
 	Repository repository(TipManifestReader reader, SpringTipsProperties properties,
 			ApplicationEventPublisher publisher) {
-		return new Repository(properties.github().resetOnRebuild(), properties.github().cloneDirectory(), reader,
-				properties.github().gitRepository(), publisher);
+		return new Repository(properties.github().cloneDirectory(), reader, properties.github().gitRepository(),
+				publisher);
 	}
 
 	@Bean
@@ -44,7 +44,7 @@ public class Application {
 	@Bean
 	RepositoryRefreshController repositoryRefreshController(ApplicationEventPublisher publisher,
 			SpringTipsProperties properties) {
-		return new RepositoryRefreshController(properties.github().indexRebuildKey(), publisher);
+		return new RepositoryRefreshController(properties.github().rebuildKey(), publisher);
 	}
 
 }

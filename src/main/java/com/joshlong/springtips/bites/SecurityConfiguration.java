@@ -25,17 +25,6 @@ class SecurityConfiguration {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
 
-	/*
-	 * @Configuration(proxyBeanMethods = false) public class MySecurityConfiguration {
-	 *
-	 * @Bean public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
-	 * Exception { http.requestMatcher(EndpointRequest.toAnyEndpoint());
-	 * http.authorizeRequests((requests) -> requests.anyRequest().permitAll()); return
-	 * http.build(); }
-	 *
-	 * }
-	 */
-
 	@Bean
 	SecurityWebFilterChain authorization(ServerHttpSecurity http) {
 		return http//

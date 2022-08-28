@@ -1,6 +1,7 @@
 # Spring Tips: "Bites" Engine 
 
-This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in Twitter-sized "bites."
+This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in Twitter-sized "bites." I keep the content for my Spring Tips "Bites" [in a Github repository](https://github.com/spring-tips/spring-tips-twitter-tips.git), which this program monitors. I've configured a webhook from that repository so that this service reindexes each time there's an update there. 
+
 
 ## Previews 
 If you want to validate your `tip.xml` manifest, you can use the `/tips/preview` endpoint. It is locked down, however, to anyone but the users in your `stb_users` table.

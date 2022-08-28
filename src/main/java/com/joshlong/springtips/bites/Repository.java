@@ -26,8 +26,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
 @RequiredArgsConstructor
 class Repository implements ApplicationListener<ApplicationEvent> {
 
-	private final boolean resetOnRebuild;
-
 	private final File cloneRepository;
 
 	private final TipManifestReader reader;
@@ -50,11 +48,6 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	@SneakyThrows
 	private void rebuild() {
-
-		log.info("reset on rebuild? " + this.resetOnRebuild);
-
-		if (!this.resetOnRebuild)
-			return;
 
 		if (this.cloneRepository.exists() && this.cloneRepository.isDirectory()) {
 			log.info("deleting " + this.cloneRepository.getAbsolutePath() + '.');
