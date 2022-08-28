@@ -38,7 +38,7 @@ class Scheduler implements Runnable {
 
 	@Bean
 	ApplicationListener<ApplicationReadyEvent> launcher(TaskScheduler scheduler) {
-		return e -> scheduler.schedule(this, new PeriodicTrigger(10, TimeUnit.SECONDS));
+		return e -> scheduler.schedule(this, new PeriodicTrigger(1, TimeUnit.MINUTES));
 	}
 
 	@Bean
@@ -49,9 +49,9 @@ class Scheduler implements Runnable {
 	@Override
 	public void run() {
 		var sql = """
-				select   * from stb_spring_tip_bites where scheduled =
-				        (select min(s.scheduled) from stb_spring_tip_bites s where s.promoted is null )
-
+				select   * from stb_spring_tip_bites where
+				scheduled < now() and
+				scheduled = (select min(s.scheduled) from stb_spring_tip_bites s where s.promoted is null )
 				      """;
 		tx.transactional(this.dbc.sql(sql).fetch().all().map(this.function))
 				.subscribe(r -> this.publisher.publishEvent(new SpringTipsBiteScheduleTriggeredEvent(r)));

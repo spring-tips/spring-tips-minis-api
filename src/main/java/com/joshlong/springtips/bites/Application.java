@@ -1,5 +1,6 @@
 package com.joshlong.springtips.bites;
 
+import com.joshlong.twitter.Twitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,6 +37,12 @@ public class Application {
 			ApplicationEventPublisher publisher, DatabaseClient dbc, TransactionalOperator tx) {
 		return new Repository(properties.github().cloneDirectory(), reader, properties.github().gitRepository(),
 				publisher, dbc, tx);
+	}
+
+	@Bean
+	Promoter promoter(Twitter twitter, DatabaseClient dbc, TransactionalOperator tx, SpringTipsProperties properties) {
+		return new Promoter(twitter, dbc, tx, properties.twitter().username(), properties.twitter().client().name(),
+				properties.twitter().client().secret());
 	}
 
 	@Bean

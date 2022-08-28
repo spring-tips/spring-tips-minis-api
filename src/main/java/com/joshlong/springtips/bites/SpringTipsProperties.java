@@ -9,7 +9,7 @@ import java.net.URI;
 
 @ConstructorBinding
 @ConfigurationProperties(value = "springtips")
-record SpringTipsProperties(Fonts fonts, File outputDirectory, Github github) {
+record SpringTipsProperties(Fonts fonts, Twitter twitter, File outputDirectory, Github github) {
 
 	record Encryption(String salt, String password) {
 	}
@@ -18,6 +18,12 @@ record SpringTipsProperties(Fonts fonts, File outputDirectory, Github github) {
 	}
 
 	record Github(URI gitRepository, File cloneDirectory, String rebuildKey) {
+	}
+
+	record Twitter(String username, Client client) {
+
+		record Client(String name, String secret) {
+		}
 	}
 
 }
