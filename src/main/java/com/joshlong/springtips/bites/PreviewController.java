@@ -1,21 +1,21 @@
 package com.joshlong.springtips.bites;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
-// todo secure this endpoint
-@Controller
+import java.io.ByteArrayInputStream;
+
 @Slf4j
+@Controller
 @ResponseBody
 @RequiredArgsConstructor
 class PreviewController {
@@ -24,20 +24,28 @@ class PreviewController {
 
 	private final Renderer renderer;
 
-	@PostMapping("/tips/preview")
-	ResponseEntity<?> preview(@RequestBody MultipartFile tip) throws Exception {
-		var inputStream = tip.getInputStream();
-		var inputStreamResource = new InputStreamResource(inputStream);
-		var xml = ResourceUtils.read(inputStreamResource);
-		var tipObject = this.tipManifestReader.read("preview", xml);
-		log.info("got the following response: " + tipObject);
-		var svgXMl = this.renderer.createSvgDocument(tipObject.title(), tipObject.code());
-		var jpgImage = this.renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.JPG);
-		var jpgImageResource = new ByteArrayResource(jpgImage);
-		return ResponseEntity.ok() //
-				.contentType(MediaType.IMAGE_JPEG) //
-				.header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*") //
-				.body(jpgImageResource);
+	@PostMapping(value = "/tips/preview", consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,
+			produces = MediaType.IMAGE_JPEG_VALUE)
+	@ResponseStatus(value = HttpStatus.OK)
+	Resource preview(@RequestBody byte[] tip) {
+		return buildPreviewFromXmlInput(this.tipManifestReader, this.renderer, tip);
+	}
+
+	@GetMapping("/hello")
+	String hello(Authentication authentication) {
+		return "Hello, " + authentication.getName();
+	}
+
+	@SneakyThrows
+	private static Resource buildPreviewFromXmlInput(TipManifestReader tipManifestReader, Renderer renderer,
+			byte[] bytes) {
+		try (var in = new ByteArrayInputStream(bytes)) {
+			var xml = ResourceUtils.read(new InputStreamResource(in));
+			var tipObject = tipManifestReader.read("preview", xml);
+			var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
+			var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.JPG);
+			return new ByteArrayResource(jpgImage);
+		}
 	}
 
 }

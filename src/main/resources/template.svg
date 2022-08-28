@@ -63,7 +63,7 @@
     <style>
     .comment {
         fill: gray;
-        font-family: "DejaVu Sans", "Rift-Bold" ;
+        font-family: "Rift-Bold" ;
         font-weight : bold ;
     }
     </style>

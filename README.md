@@ -1,36 +1,57 @@
-#  Spring Tips: Twitter "Bites" Engine 
+# Spring Tips: "Bites" Engine 
 
-Scheduler and pipeline to produce and tweet tweet-sized Spring Tips 
+This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in Twitter-sized "bites."
 
-## Design
+## Previews 
+If you want to validate your `tip.xml` manifest, you can use the `/tips/preview` endpoint. It is locked down, however, to anyone but the users in your `stb_users` table.
 
-## Happy Path 
-This module is an HTTP application that responds to Github webhooks. When something changes in the Github repository, this application recieves a 
-webhook. The webhook triggers a `git clone` and `git pull` of the git repository, which we then read, one Spring Tip XML file at a time, into a database. During this time, we could also perhaps proactively render the tweet and store the resulting bytes in the database, as well. Or, we could store the resulting bytes in the Git repository. Or S3. I just don't know, yet. S3 seems logical, but adds more moving parts. (Decisions, decisions...) Anyway, the result of this process should be to have all the tips in a database _and_ to update the schedule tips. 
+ 
+## Building 
+You can build the application in the usual way: 
 
-A periodic `cron` or `ScheduledTask` will execute in the Spring application, periodically pulling down all the scheduled tips, turn them into tweets using the `twitter-gateway`, and then send them out if its the right time and they haven't yet been sent out.
+```shell 
+mvn clean package
+```
 
-### Preview Rendered Tips 
-There has to be some way to preview what's going to be created. I propose building a simple, behind authentication, HTTP endpoint that takes a post (`/preview`?) and that returns the image fully-rendered. This endpoint should be HTTP REST-y. I should be able to then write a CLI, pass in a shared secret, and get the result I'm looking for to see how a given tip will look once tweeted. If it's a preview endpoint, maybe it could even validate whether the tweet text itself will fit and give back a zip file containing errors, the rendered image, and the generated SVG XML?
+If you want to build a new Docker image, then use the built-in support [for Buildpacks](https://buildpacks.io): 
 
+```shell 
+mvn spring-boot:build-image
+```
 
-## Formatting 
-This program uses the Spring Boot JavaFormat Maven plugin to ensure that the source code has the same formatting regardless of both how someone edits and in which IDE they edit it. It'll break the build if code is committed without first running the formatting plugin. Thus, before comitting every change, run: 
+This application is configured to use the `full` Buildpack builder because it uses ([Apache Batik](https://xmlgraphics.apache.org/batik/), used for rendering SVG elements) that ultimately depends on Java's AWT subsystems. 
+
+## Formatting
+This program uses the Spring Boot JavaFormat Maven plugin to ensure that the source code has the same formatting regardless of both how someone edits and in which IDE they edit it. It'll break the build if code is committed without first running the formatting plugin. Thus, before committing every change, run:
 
 ```shell 
 mvn spring-javaformat:apply
 ```
 
-## Motivation  
 
-The goal of this project is to automate the generation of images to be included in periodic tweets promoting tips about Spring from the `@SpringTipsLive` (and eventually, from `@SpringCentral`) twitter handles. I'm working on figuring out how to programatically Tweet in another vein, so that's out of scope for this. Once I've figured that out, I'll integrate it with this. The scope of this program is simply to programatically take a database or Git repository of Tweets (images and code in folders, perhaps?) and then slide them into a design that supports templating. Maybe Scalable Vector Graphics (SVG, often encoded as `.svg`) could work?
+## Fonts
+
+The program uses fonts that I am pretty sure that I can't share with others. I've encrypted an archive of the fonts and stored them in this `Git` repository. To unencrypt the archive, you'll need a _salt_ and a _password_, which I've stored in my secrets manager in the `developer-advocacy` group in a secret note for `spring tips bites`. 
+
+If you want to change the fonts, you need to put them in to a `.tar.gz` archive, such that they are the files that result from the un-archiving. I used the following command to create the archive:
+
+```shell
+tar -c * | gzip -9 > fonts.tgz
+```
+
+Then I use the following Java code with Apache Commons Compress on the classpath to encrypt it:
 
 
-## To Do 
-- (x) figure out the right [ratios for images on twitter](https://influencermarketinghub.com/twitter-image-size/). It looks like 16:9 is the best, and that's great since that's what I'm doing. 
-- since im doing images, what about instagram? and linkedin? i guess i could just manually schedule those or use an API with Hootsuite or something? is it worth trying out instagram for a little to see if this works with it? 
-- (x) build the git integration so that the tips live in a git repository; build an endpoint to call from a github webhook whenever the git repository gets new content.  
-  - setup a postgresql db for this thing. do i need to store the rendered tweets? It seems to me that whenever I submit a tip as a tweet, there won't be many images to handle at the same time, so I could just render the xml and the resulting `.jpg` on-demand, and avoid the cost of having to save the `.jpg` somewhere, like a SQL DB or a Git repository  (it'll eat into my quota, quickly, with each image taking half a megabyte!).
-- how will the scheduler work? something that periodically scans the git repo and _upserts_ whatever directories are in the git repo to the DB? select max(date)::date + interval '7 days' or something like that. I'll need to do an "`upsert`" (`on conflict on constraint (blah) do update x = excluded.x...`).
-- how will I build out the `/preview` endpoint? spring security, and a file upload that returns a `.zip` that i can use to diagnose everything?  
-- how will I deploy this to kubernetes? Do I need another DNS name? A subdomain? Is this going to be the first service to live at `springtipslive.io`? 
+```java
+  BytesEncryptor encryptor = Encryptors.stronger(password, salt);
+  File decryptedTgz = ... // the location of `fonts.tgz` from above
+  if (decryptedTgz.exists()) {
+      log.debug("somebody needs to do some encrypting!");
+      var bytes = this.encryptor.encrypt(FileCopyUtils.copyToByteArray(decryptedTgz.getInputStream()));
+      var writtenEncryptedTgz = new File(this.outputDirectory, "fonts.tgz.encrypted");
+      ResourceUtils.write(bytes, new FileSystemResource(writtenEncryptedTgz));
+      log.debug("wrote the encrypted file to " + writtenEncryptedTgz.getAbsolutePath());
+  }
+```
+
+Replace `src/main/resources/fonts.tgz.encrypted` with the newly encrypted archive, then `git commit -am polish` and `git push`. 

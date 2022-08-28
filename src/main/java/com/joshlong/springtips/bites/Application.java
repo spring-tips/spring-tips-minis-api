@@ -25,7 +25,8 @@ public class Application {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void listEnvironmentVariables() {
-		System.getenv().forEach((k, v) -> log.debug(k + "=" + v));
+		var env = System.getenv();
+		env.forEach((k, v) -> log.debug(k + "=" + v));
 	}
 
 	@Bean
