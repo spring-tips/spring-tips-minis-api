@@ -1,5 +1,6 @@
 package com.joshlong.springtips.bites;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshlong.twitter.Twitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -40,9 +41,10 @@ public class Application {
 	}
 
 	@Bean
-	Promoter promoter(Twitter twitter, DatabaseClient dbc, TransactionalOperator tx, SpringTipsProperties properties) {
+	Promoter promoter(Twitter twitter, DatabaseClient dbc, ObjectMapper om, TransactionalOperator tx,
+			SpringTipsProperties properties) {
 		return new Promoter(twitter, dbc, tx, properties.twitter().username(), properties.twitter().client().id(),
-				properties.twitter().client().secret());
+				properties.twitter().client().secret(), om);
 	}
 
 	@Bean
