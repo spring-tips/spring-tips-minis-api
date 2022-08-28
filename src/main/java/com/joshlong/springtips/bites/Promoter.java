@@ -3,7 +3,6 @@ package com.joshlong.springtips.bites;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshlong.twitter.Twitter;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -30,23 +29,19 @@ class Promoter {
 
 	private final ObjectMapper objectMapper;
 
-	@SneakyThrows
-	private String renderAndEncodeTweet(SpringTip springTip) {
-		var map = Map.of("text", springTip.tweet());
-		return objectMapper.writeValueAsString(map);
-	}
-
 	@EventListener
-	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) {
+	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) throws Exception {
 		var st = event.getSource();
 		var client = new Twitter.Client(this.twitterClientId, this.twitterClientSecret);
-		var tweetJson = renderAndEncodeTweet(st);
+		var map = Map.of("text", st.tweet());
+		var tweetJson =;
 		var promotionPipeline = this.twitter//
-				.scheduleTweet(client, new Date(), this.twitterUsername, tweetJson) //
+				.scheduleTweet(client, new Date(), this.twitterUsername,
+						this.objectMapper.writeValueAsString(map)) //
 				.flatMap(result -> {
 					if (result) {
 						return this.dbc//
-								.sql("update stb_spring_tip_bites set promoted = NOW () where uid = :uid ")//
+								.sql("update stb_spring_tip_bites set promoted = NOW() where uid = :uid ")//
 								.bind("uid", st.uid())//
 								.fetch()//
 								.rowsUpdated()//
