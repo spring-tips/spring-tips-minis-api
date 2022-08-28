@@ -8,23 +8,21 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.transaction.reactive.TransactionalOperator;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,17 +32,17 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	private final TipManifestReader reader;
 
-	private final Object monitor = new Object();
-
 	private final URI uri;
-
-	private final Set<SpringTip> tips = new ConcurrentSkipListSet<>(Comparator.comparing(o -> (o.title() + o.tweet())));
 
 	private final ApplicationEventPublisher publisher;
 
 	private final DatabaseClient dbc;
 
 	private final TransactionalOperator tx;
+
+	private final Function<Map<String, Object>, SpringTip> mapSpringTipFunction = //
+			record -> new SpringTip((String) record.get("code"), (String) record.get("title"),
+					(String) record.get("tweet"), (String) record.get("uid"));
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
@@ -56,12 +54,38 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	}
 
+	Flux<SpringTip> findDue() {
+		var sql = """
+				  select * from stb_spring_tip_bites where
+				  scheduled < now() and
+				  scheduled = (select min(s.scheduled) from stb_spring_tip_bites s where s.promoted is null )
+				""";
+		var results = this.dbc.sql(sql).fetch().all().map(this.mapSpringTipFunction);
+		return this.tx.transactional(results);
+	}
+
+	Mono<SpringTip> findById(Integer id) {
+		var results = this.dbc //
+				.sql("select * from stb_spring_tip_bites where id = :id ")//
+				.bind("id", id)//
+				.fetch()//
+				.one()//
+				.map(this.mapSpringTipFunction);
+		return this.tx.transactional(results);
+	}
+
+	Flux<SpringTip> findAll() {
+		var results = this.dbc //
+				.sql("select * from stb_spring_tip_bites ")//
+				.fetch()//
+				.all()//
+				.map(this.mapSpringTipFunction);
+		return this.tx.transactional(results);
+	}
+
 	@SneakyThrows
 	private static Mono<SpringTip> doPersist(DatabaseClient dbc, SpringTip tip) {
 		var sql = """
-
-
-
 				 insert into  stb_spring_tip_bites(
 				    scheduled,
 				    tweet,
@@ -78,9 +102,9 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 				)
 				on conflict on constraint stb_spring_tip_bites_uid_key
 				do update set
-				     tweet  = excluded.tweet,
-				    code  = excluded.code,
-				    title  = excluded.title
+				  	tweet = excluded.tweet,
+				     code = excluded.code,
+				    title = excluded.title
 				""";
 
 		return dbc.sql(sql) //
@@ -88,7 +112,9 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 				.bind("uid", tip.uid())//
 				.bind("title", tip.title())//
 				.bind("code", tip.code())//
-				.fetch().rowsUpdated().map(x -> tip);
+				.fetch() //
+				.rowsUpdated() //
+				.map(x -> tip);
 
 	}
 
@@ -99,13 +125,13 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 		var tips = Flux //
 				.fromIterable(tipCollection)//
 				.flatMap(springTip -> doPersist(this.dbc, springTip));
-		this.tx.transactional(tips).doOnError(e -> log.error("something went wrong!", e))
-				.subscribe(st -> log.info(st.toString()));
+		this.tx.transactional(tips) //
+				.doOnError(e -> log.error("something went wrong!", e)) //
+				.subscribe(st -> log.info("\t" + st.uid() + " " + st.title()));
 	}
 
 	@SneakyThrows
 	private void rebuild() {
-
 		if (this.cloneRepository.exists() && this.cloneRepository.isDirectory()) {
 			log.info("deleting " + this.cloneRepository.getAbsolutePath() + '.');
 			FileSystemUtils.deleteRecursively(this.cloneRepository);
@@ -117,25 +143,17 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 				.call() //
 				.getRepository();
 		log.info("git clone'd " + repo.toString());
-
-		var collection = new HashSet<SpringTip>();
-
 		var springTips = Objects.requireNonNull(
 				this.cloneRepository.listFiles(pathname -> pathname.getAbsolutePath().endsWith(".xml")));
-
+		var performedTips = new HashSet<SpringTip>();
 		for (var tip : springTips) {
-			log.info("found Spring Tip manifest file [" + tip.getAbsolutePath() + "].");
-			try (var f = new InputStreamReader(new FileInputStream(tip))) {
-				var xml = this.reader.read(FileCopyUtils.copyToString(f));
-				collection.add(xml);
+			try (var inputStream = (new FileInputStream(tip))) {
+				var xml = ResourceUtils.read(new InputStreamResource(inputStream));
+				var springTip = this.reader.read(xml);
+				performedTips.add(springTip);
 			}
 		}
-		log.info("the collection has " + collection.size() + " elements");
-		synchronized (this.monitor) {
-			this.tips.clear();
-			this.tips.addAll(collection);
-		}
-		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), this.tips));
+		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), performedTips));
 	}
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <tip>
+    <uid>dhtttp2022-08-24</uid>
     <title>Declarative HTTP or RSocket Clients in Spring Boot 3</title>
     <tweet> Want to learn how to build a declarative reactive HTTP or RSocket client with Spring Boot 3?</tweet>
     <code>
