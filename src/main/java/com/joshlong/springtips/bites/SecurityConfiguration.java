@@ -1,9 +1,6 @@
 package com.joshlong.springtips.bites;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -18,14 +15,9 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import java.util.List;
 
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
 class SecurityConfiguration {
-
-	private final DatabaseClient db;
-
-	private final String sqlSelectUsers = " select * from stb_users where username = :username ";
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -42,9 +34,10 @@ class SecurityConfiguration {
 	}
 
 	@Bean
-	ReactiveUserDetailsService authentication() {
+	ReactiveUserDetailsService authentication(DatabaseClient db) {
+		var sqlSelectUsers = " select * from stb_users where username = :username ";
 		return username -> db //
-				.sql(this.sqlSelectUsers)//
+				.sql(sqlSelectUsers)//
 				.bind("username", username)//
 				.fetch()//
 				.one()//
