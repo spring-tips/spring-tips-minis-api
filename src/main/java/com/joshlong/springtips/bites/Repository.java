@@ -127,7 +127,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 		for (var tip : springTips) {
 			log.info("found Spring Tip manifest file [" + tip.getAbsolutePath() + "].");
 			try (var f = new InputStreamReader(new FileInputStream(tip))) {
-				var xml = this.reader.read(tip, FileCopyUtils.copyToString(f));
+				var xml = this.reader.read(FileCopyUtils.copyToString(f));
 				collection.add(xml);
 			}
 		}

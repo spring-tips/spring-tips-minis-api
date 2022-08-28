@@ -5,7 +5,8 @@ create table if not exists stb_spring_tip_bites
     uid      text      not null unique,
     tweet     text      not null,
     title     text      not null,
-    code      text      not null
+    code      text      not null ,
+    promoted timestamp null
 );
 
 create table if not exists stb_users

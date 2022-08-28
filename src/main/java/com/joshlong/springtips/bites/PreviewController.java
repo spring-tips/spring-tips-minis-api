@@ -39,7 +39,7 @@ class PreviewController {
 			byte[] bytes) {
 		try (var in = new ByteArrayInputStream(bytes)) {
 			var xml = ResourceUtils.read(new InputStreamResource(in));
-			var tipObject = tipManifestReader.read("preview", xml);
+			var tipObject = tipManifestReader.read(xml);
 			var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
 			var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
 			return new ByteArrayResource(jpgImage);

@@ -52,11 +52,6 @@ class FontConfiguration implements ApplicationListener<ApplicationReadyEvent> {
 		this.outputDirectory = ensureDirectory(directory);
 	}
 
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
-	}
-
 	@Override
 	@SneakyThrows
 	public void onApplicationEvent(ApplicationReadyEvent event) {
