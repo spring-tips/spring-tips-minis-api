@@ -1,7 +1,9 @@
 package com.joshlong.springtips.bites;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshlong.twitter.Twitter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -9,6 +11,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
+import java.util.Map;
 
 /*
  * integrate the twitter gateway client here
@@ -25,9 +28,12 @@ class Promoter {
 
 	private final String twitterUsername, twitterClientId, twitterClientSecret;
 
+	private final ObjectMapper objectMapper;
+
+	@SneakyThrows
 	private String renderAndEncodeTweet(SpringTip springTip) {
-		// todo use the renderer and such
-		return springTip.tweet();
+		var map = Map.of("text", springTip.tweet());
+		return objectMapper.writeValueAsString(map);
 	}
 
 	@EventListener
