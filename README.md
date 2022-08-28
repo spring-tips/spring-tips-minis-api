@@ -41,7 +41,6 @@ tar -c * | gzip -9 > fonts.tgz
 
 Then I use the following Java code with Apache Commons Compress on the classpath to encrypt it:
 
-
 ```java
   BytesEncryptor encryptor = Encryptors.stronger(password, salt);
   File decryptedTgz = ... // the location of `fonts.tgz` from above
