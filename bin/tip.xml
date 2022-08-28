@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<tip>
+    <title>Declarative HTTP or RSocket Clients in Spring Boot 3</title>
+    <tweet> Want to learn how to build a declarative reactive HTTP or RSocket client with Spring Boot 3?</tweet>
+    <code>
+<![CDATA[
+
+// 1. this is how you start a class
+class BatikSvgTranscoder implements SvgTranscoder {
+
+    private final JPEGTranscoder transcoder = new JPEGTranscoder();
+    private final Object monitor = new Object();
+
+    BatikSvgTranscoder() {
+        this.transcoder.addTranscodingHint(JPEGTranscoder.KEY_QUALITY, (float) 0.8);
+    }
+
+    // 2. i love me some Lombok
+    @Override
+    @SneakyThrows
+    public void transcode(InputStream inputStream, OutputStream outputStream) {
+        synchronized (this.monitor) {
+            var input = new TranscoderInput(inputStream);
+            var output = new TranscoderOutput(outputStream);
+            this.transcoder.transcode(input, output);
+        }
+    }
+}
+
+]]>
+    </code>
+</tip>
