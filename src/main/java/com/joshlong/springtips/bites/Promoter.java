@@ -34,10 +34,8 @@ class Promoter {
 		var st = event.getSource();
 		var client = new Twitter.Client(this.twitterClientId, this.twitterClientSecret);
 		var map = Map.of("text", st.tweet());
-		var tweetJson =;
 		var promotionPipeline = this.twitter//
-				.scheduleTweet(client, new Date(), this.twitterUsername,
-						this.objectMapper.writeValueAsString(map)) //
+				.scheduleTweet(client, new Date(), this.twitterUsername, this.objectMapper.writeValueAsString(map)) //
 				.flatMap(result -> {
 					if (result) {
 						return this.dbc//
