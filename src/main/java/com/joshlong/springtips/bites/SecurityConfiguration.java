@@ -1,6 +1,7 @@
 package com.joshlong.springtips.bites;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -24,9 +25,21 @@ class SecurityConfiguration {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
 
+	/*
+	 * @Configuration(proxyBeanMethods = false) public class MySecurityConfiguration {
+	 *
+	 * @Bean public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
+	 * Exception { http.requestMatcher(EndpointRequest.toAnyEndpoint());
+	 * http.authorizeRequests((requests) -> requests.anyRequest().permitAll()); return
+	 * http.build(); }
+	 *
+	 * }
+	 */
+
 	@Bean
 	SecurityWebFilterChain authorization(ServerHttpSecurity http) {
 		return http//
+				.authorizeExchange(ae -> ae.matchers(EndpointRequest.toAnyEndpoint()).permitAll())
 				.authorizeExchange(ae -> ae.anyExchange().authenticated()) //
 				.httpBasic(Customizer.withDefaults()) //
 				.csrf(ServerHttpSecurity.CsrfSpec::disable) //
