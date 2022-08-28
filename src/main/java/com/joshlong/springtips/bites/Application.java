@@ -36,15 +36,16 @@ public class Application {
 	@Bean
 	Repository repository(TipManifestReader reader, SpringTipsProperties properties,
 			ApplicationEventPublisher publisher, DatabaseClient dbc, TransactionalOperator tx) {
-		return new Repository(properties.github().cloneDirectory(), reader, properties.github().gitRepository(),
-				publisher, dbc, tx);
+		var github = properties.github();
+		return new Repository(github.cloneDirectory(), reader, github.gitRepository(), publisher, dbc, tx);
 	}
 
 	@Bean
-	Promoter promoter(Twitter twitter, DatabaseClient dbc, ObjectMapper om, TransactionalOperator tx,
+	Promoter promoter(Twitter twitterClient, DatabaseClient dbc, ObjectMapper om, TransactionalOperator tx,
 			SpringTipsProperties properties) {
-		return new Promoter(twitter, dbc, tx, properties.twitter().username(), properties.twitter().client().id(),
-				properties.twitter().client().secret(), om);
+		var twitter = properties.twitter();
+		var client = twitter.client();
+		return new Promoter(twitterClient, dbc, tx, twitter.username(), client.id(), client.secret(), om);
 	}
 
 	@Bean
