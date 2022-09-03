@@ -26,7 +26,7 @@ class Scheduler implements Runnable {
 
 	@Bean
 	ApplicationListener<ApplicationReadyEvent> launcher(TaskScheduler scheduler) {
-		return e -> scheduler.schedule(this, new PeriodicTrigger(1, TimeUnit.MINUTES));
+		return event -> scheduler.schedule(this, new PeriodicTrigger(1, TimeUnit.MINUTES));
 	}
 
 	@Bean

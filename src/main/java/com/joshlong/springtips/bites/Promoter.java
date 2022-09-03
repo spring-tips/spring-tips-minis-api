@@ -1,16 +1,16 @@
 package com.joshlong.springtips.bites;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshlong.twitter.Twitter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
-import java.util.Map;
 
 /*
  * integrate the twitter gateway client here
@@ -27,15 +27,16 @@ class Promoter {
 
 	private final String twitterUsername, twitterClientId, twitterClientSecret;
 
-	private final ObjectMapper objectMapper;
+	private final Renderer renderer;
 
 	@EventListener
-	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) throws Exception {
+	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) {
 		var st = event.getSource();
 		var client = new Twitter.Client(this.twitterClientId, this.twitterClientSecret);
-		var map = Map.of("text", st.tweet());
+		var media = render(this.renderer, st);
+		var image = new Twitter.Media(media, Twitter.MediaType.IMAGE);
 		var promotionPipeline = this.twitter//
-				.scheduleTweet(client, new Date(), this.twitterUsername, this.objectMapper.writeValueAsString(map)) //
+				.scheduleTweet(client, new Date(), this.twitterUsername, st.tweet(), image) //
 				.flatMap(result -> {
 					if (result) {
 						return this.dbc//
@@ -51,6 +52,12 @@ class Promoter {
 				.map(r -> st)//
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("can't promote [" + st + "]")));//
 		this.tx.transactional(promotionPipeline).subscribe(s -> log.info("promoted [" + s + "]"));
+	}
+
+	private static Resource render(Renderer renderer, SpringTip tipObject) {
+		var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
+		var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
+		return new ByteArrayResource(jpgImage);
 	}
 
 }
