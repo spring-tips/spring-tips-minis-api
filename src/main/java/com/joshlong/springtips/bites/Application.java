@@ -41,11 +41,11 @@ public class Application {
 	}
 
 	@Bean
-	Promoter promoter(Twitter twitterClient, DatabaseClient dbc, ObjectMapper om, TransactionalOperator tx,
+	Promoter promoter(Twitter twitterClient, DatabaseClient dbc, TransactionalOperator tx, Renderer renderer,
 			SpringTipsProperties properties) {
 		var twitter = properties.twitter();
 		var client = twitter.client();
-		return new Promoter(twitterClient, dbc, tx, twitter.username(), client.id(), client.secret(), om);
+		return new Promoter(twitterClient, dbc, tx, twitter.username(), client.id(), client.secret(), renderer);
 	}
 
 	@Bean
