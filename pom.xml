@@ -7,19 +7,19 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.3</version>
+        <version>3.0.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.joshlong.springtips</groupId>
-    <artifactId>spring-tips-twitter-bites</artifactId>
+    <groupId>com.joshlong.minispringtips</groupId>
+    <artifactId>service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
-        <artifactory-maven-plugin.version>3.2.3</artifactory-maven-plugin.version>
-        <jgit.version>5.13.0.202109080827-r</jgit.version>
         <java.version>17</java.version>
-        <spring-cloud.version>2021.0.3</spring-cloud.version>
+        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <batik.version>1.14</batik.version>
+        <commons-compress.version>1.21</commons-compress.version>
     </properties>
 
     <dependencies>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
+            <version>${commons-compress.version}</version>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -52,39 +52,41 @@
             <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>${jgit.version}</version>
+            <groupId>com.joshlong</groupId>
+            <artifactId>
+                git-spring-boot-starter
+            </artifactId>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-transcoder</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
+        <!--      <dependency>
+                  <groupId>io.netty</groupId>
+                  <artifactId>netty-all</artifactId>
+                  <version>${netty.version}</version>
+              </dependency>-->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-codec</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-svgpp</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-rasterizer</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>batik-squiggle</artifactId>
-            <version>1.14</version>
+            <version>${batik.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -139,8 +141,7 @@
             <plugin>
                 <groupId>org.jfrog.buildinfo</groupId>
                 <artifactId>artifactory-maven-plugin</artifactId>
-                <version>${artifactory-maven-plugin.version}</version>
-                <inherited>false</inherited>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <id>build-info</id>
@@ -165,10 +166,11 @@
                             </publisher>
                             <buildInfo>
                                 <agentName>Github Actions</agentName>
-                                <buildNumber>{{GITHUB_RUN_ID}}
+                                <buildNumber>
+                                    {{GITHUB_RUN_ID}}
                                 </buildNumber>
                                 <buildUrl>
-                                    http://travis-ci.org/{{GITHUB_REPOSITORY}}/builds/{{GITHUB_RUN_ID}}
+                                    https://github.com/{{GITHUB_REPOSITORY}}/actions/runs/{{GITHUB_RUN_ID}}
                                 </buildUrl>
                                 <principal>{{USER}}</principal>
                                 <vcsRevision>{{GITHUB_SHA}}</vcsRevision>
