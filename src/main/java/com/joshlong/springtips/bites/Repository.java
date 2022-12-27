@@ -46,6 +46,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
+		// if we got a webhook or the app has started...
 		if (event instanceof RepositoryRefreshEvent || event instanceof ApplicationReadyEvent) {
 			this.rebuild();
 		}
@@ -54,7 +55,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	}
 
-	Flux<SpringTip> findDue() {
+	Flux<SpringTip> findNonPromoted() {
 		var sql = """
 				  select * from stb_spring_tip_bites where
 				  scheduled < now() and
@@ -84,7 +85,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 	}
 
 	@SneakyThrows
-	private static Mono<SpringTip> doPersist(DatabaseClient dbc, SpringTip tip) {
+	private Mono<SpringTip> doPersist(SpringTip tip) {
 		var sql = """
 				 insert into  stb_spring_tip_bites(
 				    scheduled,
@@ -124,7 +125,7 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 		log.info("going to persist " + tipCollection.size() + " elements");
 		var tips = Flux //
 				.fromIterable(tipCollection)//
-				.flatMap(springTip -> doPersist(this.dbc, springTip));
+				.flatMap(this::doPersist);
 		this.tx.transactional(tips) //
 				.doOnError(e -> log.error("something went wrong!", e)) //
 				.subscribe(st -> log.info("\t" + st.uid() + " " + st.title()));
@@ -145,15 +146,15 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 		log.info("git clone'd " + repo.toString());
 		var springTips = Objects.requireNonNull(
 				this.cloneRepository.listFiles(pathname -> pathname.getAbsolutePath().endsWith(".xml")));
-		var performedTips = new HashSet<SpringTip>();
+		var ingestedTips = new HashSet<SpringTip>();
 		for (var tip : springTips) {
 			try (var inputStream = (new FileInputStream(tip))) {
 				var xml = ResourceUtils.read(new InputStreamResource(inputStream));
 				var springTip = this.reader.read(xml);
-				performedTips.add(springTip);
+				ingestedTips.add(springTip);
 			}
 		}
-		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), performedTips));
+		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), ingestedTips));
 	}
 
 }

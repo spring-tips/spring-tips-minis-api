@@ -7,6 +7,7 @@ import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
@@ -28,6 +29,12 @@ import java.util.stream.Collectors;
 class Renderer {
 
 	private final Resource templateResource = new ClassPathResource("/template.svg");
+
+	public Resource render(Renderer renderer, SpringTip tipObject) {
+		var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
+		var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
+		return new ByteArrayResource(jpgImage);
+	}
 
 	@SneakyThrows
 	public String createSvgDocument(String title, String code) {
@@ -171,15 +178,14 @@ class Renderer {
 	}
 
 	private static String repeat(int count) {
-		StringBuilder s = new StringBuilder();
-		for (var i = 0; i < count; i++)
-			s.append(" ");
+		var s = new StringBuilder();
+		s.append(" ".repeat(Math.max(0, count)));
 		return s.toString();
 	}
 
 	private static String stylizeCode(List<String> lines) {
 		var tspanTemplate = trim("""
-				 <tspan  x="100" dy="1em">%s</tspan>
+				 <tspan x="100" dy="1em">%s</tspan>
 				""");
 		return lines.stream() //
 				.map(l -> {

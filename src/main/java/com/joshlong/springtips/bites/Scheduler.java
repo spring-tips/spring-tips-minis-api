@@ -12,6 +12,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -26,7 +27,7 @@ class Scheduler implements Runnable {
 
 	@Bean
 	ApplicationListener<ApplicationReadyEvent> launcher(TaskScheduler scheduler) {
-		return event -> scheduler.schedule(this, new PeriodicTrigger(1, TimeUnit.MINUTES));
+		return event -> scheduler.schedule(this, new PeriodicTrigger(Duration.of(1, TimeUnit.MINUTES.toChronoUnit())));
 	}
 
 	@Bean
@@ -36,7 +37,7 @@ class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
-		this.repository.findDue()
+		this.repository.findNonPromoted()
 				.subscribe(r -> this.publisher.publishEvent(new SpringTipsBiteScheduleTriggeredEvent(r)));
 	}
 

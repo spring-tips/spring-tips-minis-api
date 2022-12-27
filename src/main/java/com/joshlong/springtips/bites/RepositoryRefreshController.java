@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * this controller receives the webhooks from github alerting us to new content in the
+ * tips repository.
+ */
 @Slf4j
 @Controller
 @ResponseBody
@@ -28,16 +32,11 @@ class RepositoryRefreshController {
 		Assert.hasText(this.rebuildKey, "the rebuildKey must not be null");
 	}
 
-	/*
-	 * this is for github
-	 */
 	@PostMapping("/refresh")
 	ResponseEntity<?> refresh(RequestEntity<String> requestEntity) throws Exception {
 		var theirHash = HmacUtils.generateHmac256(Objects.requireNonNull(requestEntity.getBody()),
 				this.rebuildKey.getBytes());
-		log.debug("theirHash " + theirHash);
 		var myHash = getGithubWebhookRequestSha256HeaderValue(requestEntity);
-		log.debug("myHash " + myHash);
 		if (StringUtils.hasText(myHash) && StringUtils.hasText(theirHash)) {
 			if (myHash.contains(theirHash)) {
 				var event = new RepositoryRefreshEvent(Instant.now());

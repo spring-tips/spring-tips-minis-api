@@ -1,6 +1,7 @@
 #  Mini Spring Tips Service
 
-This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in Twitter-sized "bites." I keep the content for my Spring Tips "Bites" [in a Github repository](https://github.com/spring-tips/spring-tips-twitter-tips.git), which this program monitors. I've configured a webhook from that repository so that this service reindexes each time there's an update there.
+This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in mini Twitter-sized Spring Tips. I keep the content for my mini Spring Tips [in a Github repository](https://github.com/spring-tips/spring-tips-twitter-tips.git), 
+which this program monitors. I've configured a webhook from that repository so that this service reindexes each time there's an update there.
 
 
 ## Previews
@@ -56,11 +57,23 @@ Then I use the following Java code with Apache Commons Compress on the classpath
 
 Replace `src/main/resources/fonts.tgz.encrypted` with the newly encrypted archive, then `git commit -am polish` and `git push`.
 
+## Architecture 
 
-## Rebuild
+A component monitors a Git repository containing tip XML markup files. As new ones arrive, it schedules those for publication in a local database. Once a day, a local cron process goes through all the scheduled tips and sends them to the twitter service, which has its own scheduling component. The local scheduler should do so based on its own localdabase of scheduled dates, striving to release new content on a configurable basis. 
 
-The `Repository` keeps track of all the published Spring Tips from the Git repository. We rebuild that index whenever there's a change in the github repository. I've configured a webhook on that git repository to send an `application/json` content-type `POST` request to `/refresh`.
+The scheduling is an interesting problem. I imagine we'll have a database containing information about the outstanding tips:
 
-## Scheduling
+``` 
+tip_id      | date_scheduled   | date_created 
+------------------------------------------------------
+1             2022-12-01         2022-10-31
+2             2022-12-03         2022-10-32
+3             2022-12-05         2022-10-32
+4             null               2022-10-32
 
-We should have a periodic timer that pulls for everything in the DB that hasn't been scheduled, choosing the oldest of the scheduled items first. We want to make sure that the oldest scheduled items get promoted first.
+
+
+```
+
+
+Maybe we could accept a `cron` `String` and manually advance time until the `CronTrigger` matches? Suppose there are no outstanding unscheduled tips. So, we take today's date. Otherwise, we take the date of the tip scheduled furthest into the future. Take that date, truncate it to the date, then advance a `Date` day by day until the `CronTrigger` matches. Then use that date to schedule the next tip that's not been scheduled. Then  

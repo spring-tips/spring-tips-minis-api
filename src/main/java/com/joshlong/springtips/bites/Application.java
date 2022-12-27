@@ -1,6 +1,5 @@
 package com.joshlong.springtips.bites;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.joshlong.twitter.Twitter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

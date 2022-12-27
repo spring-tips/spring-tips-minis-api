@@ -3,7 +3,6 @@ package com.joshlong.springtips.bites;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -39,7 +38,7 @@ class PreviewController {
 	Mono<Resource> read(@PathVariable Integer id) {
 		log.info("the preview for [" + id + "]");
 		var springTipMono = this.repository.findById(id);
-		return springTipMono.map(springTip -> render(this.renderer, springTip));
+		return springTipMono.map(springTip -> this.renderer.render(this.renderer, springTip));
 	}
 
 	@GetMapping("/hello")
@@ -53,14 +52,8 @@ class PreviewController {
 		try (var in = new ByteArrayInputStream(bytes)) {
 			var xml = ResourceUtils.read(new InputStreamResource(in));
 			var tipObject = tipManifestReader.read(xml);
-			return render(renderer, tipObject);
+			return renderer.render(renderer, tipObject);
 		}
-	}
-
-	private static Resource render(Renderer renderer, SpringTip tipObject) {
-		var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
-		var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
-		return new ByteArrayResource(jpgImage);
 	}
 
 }
