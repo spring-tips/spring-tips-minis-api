@@ -31,7 +31,7 @@ class Promoter {
 	public void scheduled(SpringTipsBiteScheduleTriggeredEvent event) {
 		var springTip = event.getSource();
 		var client = new Twitter.Client(this.twitterClientId, this.twitterClientSecret);
-		var media = this.renderer.render(this.renderer, springTip);
+		var media = this.renderer.render(springTip);
 		var image = new Twitter.Media(media, Twitter.MediaType.IMAGE);
 		var promotionPipeline = this.twitter//
 				.scheduleTweet(client, new Date(), this.twitterUsername, springTip.tweet(), image) //

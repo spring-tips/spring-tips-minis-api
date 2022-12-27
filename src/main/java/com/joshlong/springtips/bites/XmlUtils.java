@@ -62,7 +62,7 @@ abstract class XmlUtils {
 			var dbFactory = DocumentBuilderFactory.newInstance();
 			var dBuilder = dbFactory.newDocumentBuilder();
 			return dBuilder.parse(inputSource);
-		} //
+		}
 		catch (Exception ex) {
 			log.error("couldn't parse the Document", ex);
 		}

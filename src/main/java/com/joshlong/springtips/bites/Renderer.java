@@ -30,9 +30,9 @@ class Renderer {
 
 	private final Resource templateResource = new ClassPathResource("/template.svg");
 
-	public Resource render(Renderer renderer, SpringTip tipObject) {
-		var svgXMl = renderer.createSvgDocument(tipObject.title(), tipObject.code());
-		var jpgImage = renderer.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
+	public Resource render(SpringTip tipObject) {
+		var svgXMl = this.createSvgDocument(tipObject.title(), tipObject.code());
+		var jpgImage = this.transcodeSvgDocument(svgXMl, Renderer.Extension.PNG);
 		return new ByteArrayResource(jpgImage);
 	}
 
