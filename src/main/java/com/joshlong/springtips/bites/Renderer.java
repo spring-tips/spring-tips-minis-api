@@ -134,7 +134,7 @@ class Renderer {
 		var mapping = Map.of(// map( lines => font size)
 				10, 40, //
 				20, 30, //
-				30, 20 //
+				30, 30 //
 		);
 		var match = mapping.keySet() //
 				.stream()//

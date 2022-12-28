@@ -49,6 +49,7 @@ class Promoter {
 				.filter(res -> res) //
 				.map(r -> springTip)//
 				.switchIfEmpty(Mono.error(new IllegalArgumentException("can't promote [" + springTip + "]")));//
+
 		this.tx.transactional(promotionPipeline) //
 				.subscribe(s -> log.info("promoted [" + s + "]"));
 	}
