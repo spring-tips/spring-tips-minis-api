@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -148,13 +149,16 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 				this.cloneRepository.listFiles(pathname -> pathname.getAbsolutePath().endsWith(".xml")));
 		var ingestedTips = new HashSet<SpringTip>();
 		for (var tip : springTips) {
-			try (var inputStream = (new FileInputStream(tip))) {
+			try (var inputStream = new FileInputStream(tip)) {
 				var xml = ResourceUtils.read(new InputStreamResource(inputStream));
 				var springTip = this.reader.read(xml);
 				ingestedTips.add(springTip);
 			}
 		}
-		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), ingestedTips));
+		var out = ingestedTips.stream()//
+				.sorted(Comparator.comparing(SpringTip::uid))//
+				.toList();
+		this.publisher.publishEvent(new RepositoryRefreshedEvent(Instant.now(), out));
 	}
 
 }
