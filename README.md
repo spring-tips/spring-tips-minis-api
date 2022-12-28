@@ -1,12 +1,10 @@
-#  Mini Spring Tips Service
+# Mini Spring Tips Service
 
 This program discovers, renders, and schedules tweets that provide mini Spring Tips, introducing new things in mini Twitter-sized Spring Tips. I keep the content for my mini Spring Tips [in a Github repository](https://github.com/spring-tips/spring-tips-twitter-tips.git), 
 which this program monitors. I've configured a webhook from that repository so that this service reindexes each time there's an update there.
 
-
 ## Previews
 If you want to validate your `tip.xml` manifest, you can use the `/tips/preview` endpoint. It is locked down, however, to anyone but the users in your `stb_users` table.
-
 
 ## Building
 You can build the application in the usual way:
@@ -44,15 +42,15 @@ tar -c * | gzip -9 > fonts.tgz
 Then I use the following Java code with Apache Commons Compress on the classpath to encrypt it:
 
 ```java
-  BytesEncryptor encryptor = Encryptors.stronger(password, salt);
-        File decryptedTgz = ... // the location of `fonts.tgz` from above
-        if (decryptedTgz.exists()) {
-        log.debug("somebody needs to do some encrypting!");
-        var bytes = this.encryptor.encrypt(FileCopyUtils.copyToByteArray(decryptedTgz.getInputStream()));
-        var writtenEncryptedTgz = new File(this.outputDirectory, "fonts.tgz.encrypted");
-        ResourceUtils.write(bytes, new FileSystemResource(writtenEncryptedTgz));
-        log.debug("wrote the encrypted file to " + writtenEncryptedTgz.getAbsolutePath());
-        }
+  var encryptor = Encryptors.stronger(password, salt);
+  var decryptedTgz = ... // the Resource pointing to fonts.tgz from above
+  if (decryptedTgz.exists()) {
+    log.debug("somebody needs to do some encrypting!");
+    var bytes = this.encryptor.encrypt(FileCopyUtils.copyToByteArray(decryptedTgz.getInputStream()));
+    var writtenEncryptedTgz = new File(this.outputDirectory, "fonts.tgz.encrypted");
+    ResourceUtils.write(bytes, new FileSystemResource(writtenEncryptedTgz));
+    log.debug("wrote the encrypted file to " + writtenEncryptedTgz.getAbsolutePath());
+  }
 ```
 
 Replace `src/main/resources/fonts.tgz.encrypted` with the newly encrypted archive, then `git commit -am polish` and `git push`.
