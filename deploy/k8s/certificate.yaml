@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: spring-tips-bites-certificate
+  name: minis-api-certificate
 spec:
   domains:
-    - bites.springtipslive.io
+    - minis.springtipslive.io

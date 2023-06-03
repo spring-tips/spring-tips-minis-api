@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: spring-tips-bites
-  name: spring-tips-bites
+    app: minis-api
+  name: minis-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: spring-tips-bites
+      app: minis-api
   template:
     metadata:
       labels:
-        app: spring-tips-bites
+        app: minis-api
     spec:
       containers:
-        - image: gcr.io/bootiful/spring-tips-bites
+        - image: gcr.io/pgtm-jlong/minis-api
           imagePullPolicy: Always
-          name: spring-tips-bites
+          name: minis-api
 
           envFrom:
             - secretRef:
-                name: spring-tips-bites-secrets
+                name: minis-api-secrets
 
           env:
             - name: LANG

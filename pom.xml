@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.joshlong.minispringtips</groupId>
-    <artifactId>service</artifactId>
+    <groupId>io.springtipslive</groupId>
+    <artifactId>minis</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -47,14 +47,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.joshlong.twitter</groupId>
-            <artifactId>twitter-gateway-client</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <groupId>com.joshlong</groupId>
+            <artifactId>twitter-hub-client</artifactId>
+            <version>0.0.4-SNAPSHOT</version>    
         </dependency>
         <dependency>
             <groupId>com.joshlong</groupId>
             <artifactId>git-spring-boot-starter</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.eclipse.jgit</groupId>
@@ -139,7 +139,6 @@
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
-                <version>${git-commit-id-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jfrog.buildinfo</groupId>

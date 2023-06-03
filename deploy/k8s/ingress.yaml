@@ -1,27 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
-
 metadata:
   annotations:
     ingress.kubernetes.io/force-ssl-redirect: "true"
-    networking.gke.io/managed-certificates: "spring-tips-bites-certificate"
-    kubernetes.io/ingress.global-static-ip-name: "spring-tips-bites-ip"
-  name: spring-tips-bites-ingress
+    networking.gke.io/managed-certificates: "minis-api-certificate"
+    kubernetes.io/ingress.global-static-ip-name: "spring-tips-minis-api-ip"
+  name: minis-api-ingress
 spec:
   defaultBackend:
-
     service:
-
-      name: spring-tips-bites
+      name: minis-api
       port:
         number: 80
-
-#
-#spec:
-#  rules:
-#    - host: bites.springtipslive.io
-#      http:
-#        paths:
-#          - backend:
-#              serviceName: spring-tips-bites
-#              servicePort: 80
