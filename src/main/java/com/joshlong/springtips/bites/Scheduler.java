@@ -37,8 +37,8 @@ class Scheduler implements Runnable {
 
 	@Override
 	public void run() {
-		this.repository.findNonPromoted()
-				.subscribe(r -> this.publisher.publishEvent(new SpringTipsBiteScheduleTriggeredEvent(r)));
+		this.repository.findNonPromoted().subscribe(springTipToPromote -> this.publisher
+				.publishEvent(new SpringTipsBiteScheduleTriggeredEvent(springTipToPromote)));
 	}
 
 }

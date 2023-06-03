@@ -6,9 +6,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * This was taken from <a href
- * ="https://www.javacodemonk.com/create-hmacsha256-signature-in-java-3421c36d">this blog
- * post</a>. Thanks, JavaCodeMonk.com!
+ * This was taken from
+ * <a href="https://www.javacodemonk.com/create-hmacsha256-signature-in-java-3421c36d">
+ * this blog post</a>. Thanks, JavaCodeMonk.com!
  */
 abstract class HmacUtils {
 

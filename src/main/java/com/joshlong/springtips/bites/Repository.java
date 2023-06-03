@@ -47,10 +47,11 @@ class Repository implements ApplicationListener<ApplicationEvent> {
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		// if we got a webhook or the app has started...
-		if (event instanceof RepositoryRefreshEvent || event instanceof ApplicationReadyEvent) {
+		// if we got a webhook or the app has started...]
+
+		if (event instanceof RepositoryRefreshEvent || event instanceof ApplicationReadyEvent)
 			this.rebuild();
-		}
+
 		if (event instanceof RepositoryRefreshedEvent rre)
 			this.persist(rre);
 
